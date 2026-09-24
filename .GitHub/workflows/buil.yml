@@ -1,0 +1,24 @@
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'npm'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+      - run: npm install --legacy-peer-deps
+      - run: npx expo prebuild --platform android --no-install --clean
+      - run: cd android && chmod +x gradlew &&./gradlew assembleRelease
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TapRush-APK
+          path: android/app/build/outputs/apk/release/app-release.apk
